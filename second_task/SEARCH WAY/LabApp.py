@@ -13,7 +13,11 @@ class MazeApp(ctk.CTk):
             [0, 1, 0, 0],
             [0, 1, 1, 1]
         ]
-        
+        # [1, 0, 0, 0],
+        # [1, 0, 1, 0],
+        # [0, 0, 0, 0],
+        # [0, 1, 1, 1]
+
         # Створення шляху
         self.path = [[0 for _ in range(len(self.labyrinth[0]))] for _ in range(len(self.labyrinth))]
 
@@ -26,33 +30,24 @@ class MazeApp(ctk.CTk):
         self.solve_button = ctk.CTkButton(self, text="Find Path", command=self.find_ways)
         self.solve_button.pack(pady=10)
 
-        self.reset_button = ctk.CTkButton(self, text="Reset", command=self.reset_color)
-        self.reset_button.pack(pady=10)
-
         # Створюємо сітку
         self.grid_cells = []
-        for i in range(len(self.labyrinth)):
+        for x in range(len(self.labyrinth)):
             row = []
-            for j in range(len(self.labyrinth[0])):
+            for y in range(len(self.labyrinth[0])):
                 cell = ctk.CTkLabel(self.grid_frame, width=80, height=80, fg_color="white")
-                cell.grid(row=i, column=j, padx=5, pady=5)
+                cell.grid(row=x, column=y, padx=5, pady=5)
                 row.append(cell)
             self.grid_cells.append(row)
-        
-        self.update_grid()
+
+        self.update_color()
 
     # Оновлення кольорів
-    def update_grid(self):
-        for i in range(len(self.labyrinth)):
-            for j in range(len(self.labyrinth[0])):
-                color = "white" if self.labyrinth[i][j] == 1 else "black"
-                self.grid_cells[i][j].configure(fg_color=color, text="")
-
-    # Функція для перевірки x, y
-    def is_safe(self, x, y):
-        if 0 <= x < len(self.labyrinth) and 0 <= y < len(self.labyrinth[0]) and self.labyrinth[x][y] == 1:
-            return True
-        return False
+    def update_color(self):
+        for x in range(len(self.labyrinth)):
+            for y in range(len(self.labyrinth[0])):
+                color = "white" if self.labyrinth[x][y] == 1 else "black"
+                self.grid_cells[x][y].configure(fg_color=color, text="")
 
     # Пошук шляху
     def solve_maze(self):
@@ -70,7 +65,10 @@ class MazeApp(ctk.CTk):
             for move in moves:
                 new_x, new_y = x + move[0], y + move[1]
 
-                if self.is_safe(new_x, new_y) and self.path[new_x][new_y] == 0:
+                if (0 <= new_x < len(self.labyrinth) and
+                        0 <= new_y < len(self.labyrinth[0]) and
+                        self.labyrinth[new_x][new_y] == 1 and
+                        self.path[new_x][new_y] == 0):
                     queue.append((new_x, new_y))
                     self.path[new_x][new_y] = 1
 
@@ -79,27 +77,20 @@ class MazeApp(ctk.CTk):
     # Знаходження шляху та відображення його
     def find_ways(self):
         if self.solve_maze():
-            for i in range(len(self.path)):
-                for j in range(len(self.path[0])):
-                    if self.path[i][j] == 1:
-                        self.grid_cells[i][j].configure(fg_color="green")
+            for x in range(len(self.path)):
+                for y in range(len(self.path[0])):
+                    if self.path[x][y] == 1:
+                        self.grid_cells[x][y].configure(fg_color="green")
         else:
             ctk.CTkLabel(self, text="No Path Found", fg_color="red").pack()
 
-    # Скидання кольорів
-    def reset_color(self):
-        self.path = [[0 for _ in range(len(self.labyrinth[0]))] for _ in range(len(self.labyrinth))]
-        self.update_grid()
 
 # Запуск додатку
 if __name__ == "__main__":
     app = MazeApp()
     app.mainloop()
 
-
-
-
-# len(self.labyrinth) -визначає кількість рядків
-# len(self.labyrinth[0]) - визначає кількість стовпців
+# len(self.labyrinth)     - визначає кількість рядків
+# len(self.labyrinth[0])  - визначає кількість стовпців
 # ^ 
 # це для мене
